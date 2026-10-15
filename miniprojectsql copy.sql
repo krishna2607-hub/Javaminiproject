@@ -47,26 +47,36 @@ CREATE TABLE payment_records (
 );
 
 INSERT INTO hotels (hotel_name, city, star_rating) VALUES
-('CK Hotels Elite', 'Chennai', 5),
-('CK Hotels Grand', 'Bengaluru', 4),
-('CK Hotels Comfort', 'Hyderabad', 3);
+('Taj', 'Jaipur', 5),
+('Radisson', 'Mysuru', 5),
+('Antera', 'Visakhapatnam', 3),
+('Bluesea', 'Pune', 5),
+('Greenmeridian', 'Kochi', 4);
 
 INSERT INTO rooms (hotel_id, room_number, room_type, price, status) VALUES
-(1, 'E101', 'Standard', 2800, 'Available'),
-(1, 'E102', 'Deluxe', 4500, 'Occupied'),
-(1, 'E103', 'Suite', 8500, 'Occupied'),
-(2, 'G201', 'Standard', 2500, 'Available'),
-(2, 'G202', 'Deluxe', 4200, 'Occupied'),
-(3, 'C301', 'Standard', 2100, 'Available'),
-(3, 'C302', 'Suite', 7500, 'Occupied');
+(1, 'V501', 'Standard', 3100, 'Available'),
+(1, 'V502', 'Deluxe', 4900, 'Occupied'),
+(1, 'V503', 'Suite', 9200, 'Occupied'),
+(2, 'Z601', 'Standard', 2700, 'Available'),
+(2, 'Z602', 'Deluxe', 4600, 'Occupied'),
+(3, 'O701', 'Standard', 2300, 'Available'),
+(3, 'O702', 'Suite', 8100, 'Occupied'),
+(4, 'N801', 'Standard', 3400, 'Available'),
+(4, 'N802', 'Deluxe', 5300, 'Occupied'),
+(4, 'N803', 'Suite', 10500, 'Available'),
+(5, 'E901', 'Standard', 2900, 'Available'),
+(5, 'E902', 'Deluxe', 4700, 'Occupied'),
+(5, 'E903', 'Suite', 8800, 'Available');
 
 INSERT INTO guests (guest_name, phone, city) VALUES
-('Aditya Rao', '9876501201', 'Chennai'),
-('Meera Nair', '9876501202', 'Kochi'),
-('Vihaan Sharma', '9876501203', 'Hyderabad'),
-('Ananya Das', '9876501204', 'Kolkata'),
-('Rohan Iyer', '9876501205', 'Mumbai'),
-('Ishita Verma', '9876501206', 'Pune');
+('Devansh', '9123405671', 'Pune'),
+('Tanvi', '9123405672', 'Mumbai'),
+('Menon', '9123405673', 'Kochi'),
+('Kavya', '9123405674', 'Coimbatore'),
+('krishna', '9123405675', 'Surat'),
+('mahesh', '9123405676', 'Delhi'),
+('saikiran', '9123405677', 'Indore'),
+('narendra', '9123405678', 'Nagpur');
 
 INSERT INTO reservations
 (guest_id, room_id, check_in, check_out, booking_status) VALUES
@@ -75,25 +85,29 @@ INSERT INTO reservations
 (3, 5, '2026-10-14', '2026-10-18', 'Active'),
 (4, 7, '2026-10-01', '2026-10-04', 'Completed'),
 (1, 1, '2026-10-20', '2026-10-23', 'Booked'),
-(5, 4, '2026-10-05', '2026-10-08', 'Cancelled');
+(5, 4, '2026-10-05', '2026-10-08', 'Cancelled'),
+(7, 9, '2026-10-15', '2026-10-20', 'Active'),
+(8, 12, '2026-10-16', '2026-10-21', 'Active'),
+(2, 10, '2026-11-02', '2026-11-06', 'Booked'),
+(3, 13, '2026-11-10', '2026-11-13', 'Booked');
 
 INSERT INTO payment_records
 (reservation_id, amount, payment_status) VALUES
-(1, 22500, 'Paid'),
-(2, 42000, 'Paid'),
-(3, 16800, 'Pending'),
-(4, 22500, 'Paid'),
-(5, 8400, 'Pending'),
-(6, 0, 'Refunded');
-
--- 1. Display Available Rooms
+(1, 19500, 'Paid'),
+(2, 39000, 'Paid'),
+(3, 18400, 'Pending'),
+(4, 18000, 'Paid'),
+(5, 9300, 'Pending'),
+(6, 0, 'Refunded'),
+(7, 26500, 'Paid'),
+(8, 23500, 'Paid'),
+(9, 31500, 'Pending'),
+(10, 26400, 'Paid');
 
 SELECT r.room_number, r.room_type, r.price, h.hotel_name
 FROM rooms r
 INNER JOIN hotels h ON r.hotel_id = h.hotel_id
 WHERE r.status = 'Available';
-
--- 2. Find Guests Staying Today
 
 SELECT g.guest_name, h.hotel_name, r.room_number,
        b.check_in, b.check_out
@@ -105,13 +119,9 @@ WHERE CURDATE() >= b.check_in
   AND CURDATE() < b.check_out
   AND b.booking_status = 'Active';
 
--- 3. Calculate Total Revenue
-
 SELECT COALESCE(SUM(amount), 0) AS total_revenue
 FROM payment_records
 WHERE payment_status = 'Paid';
-
--- 4. Display Bookings Between Two Dates
 
 SELECT b.reservation_id, g.guest_name, h.hotel_name,
        b.check_in, b.check_out
@@ -121,8 +131,6 @@ INNER JOIN rooms r ON b.room_id = r.room_id
 INNER JOIN hotels h ON r.hotel_id = h.hotel_id
 WHERE b.check_in BETWEEN '2026-10-01' AND '2026-10-31';
 
--- 5. Find the Most Booked Room Type
-
 SELECT r.room_type, COUNT(*) AS total_bookings
 FROM rooms r
 INNER JOIN reservations b ON r.room_id = b.room_id
@@ -131,15 +139,11 @@ GROUP BY r.room_type
 ORDER BY total_bookings DESC, r.room_type
 LIMIT 1;
 
--- 6. Calculate Occupancy Rate
-
 SELECT ROUND(
     COUNT(CASE WHEN status = 'Occupied' THEN 1 END) * 100.0
     / NULLIF(COUNT(*), 0), 2
 ) AS occupancy_rate
 FROM rooms;
-
--- 7. Display Cancelled Bookings
 
 SELECT b.reservation_id, g.guest_name, h.hotel_name,
        r.room_number
@@ -149,28 +153,20 @@ INNER JOIN rooms r ON b.room_id = r.room_id
 INNER JOIN hotels h ON r.hotel_id = h.hotel_id
 WHERE b.booking_status = 'Cancelled';
 
--- 8. Find Guests with Multiple Bookings
-
 SELECT g.guest_name, COUNT(b.reservation_id) AS total_bookings
 FROM guests g
 INNER JOIN reservations b ON g.guest_id = b.guest_id
 GROUP BY g.guest_id, g.guest_name
 HAVING COUNT(b.reservation_id) > 1;
 
--- 9. Display Average Room Price
-
 SELECT ROUND(AVG(price), 2) AS average_room_price
 FROM rooms;
-
--- 10. Find Hotels with More Than 100 Rooms
 
 SELECT h.hotel_name, COUNT(r.room_id) AS total_rooms
 FROM hotels h
 INNER JOIN rooms r ON h.hotel_id = r.hotel_id
 GROUP BY h.hotel_id, h.hotel_name
 HAVING COUNT(r.room_id) > 100;
-
--- 11. Find the Highest-Paying Guest
 
 SELECT g.guest_name, SUM(p.amount) AS total_spent
 FROM guests g
@@ -182,8 +178,6 @@ GROUP BY g.guest_id, g.guest_name
 ORDER BY total_spent DESC
 LIMIT 1;
 
--- 12. Hotel-Wise Revenue
-
 SELECT h.hotel_name, COALESCE(SUM(p.amount), 0) AS revenue
 FROM hotels h
 INNER JOIN rooms r ON h.hotel_id = r.hotel_id
@@ -194,22 +188,16 @@ WHERE p.payment_status = 'Paid'
 GROUP BY h.hotel_id, h.hotel_name
 ORDER BY revenue DESC;
 
--- 13. Find the Most Expensive Room
-
 SELECT h.hotel_name, r.room_number, r.room_type, r.price
 FROM rooms r
 INNER JOIN hotels h ON r.hotel_id = h.hotel_id
 ORDER BY r.price DESC
 LIMIT 1;
 
--- 14. Find Guests Who Have Never Made a Booking
-
 SELECT g.guest_name
 FROM guests g
 LEFT JOIN reservations b ON g.guest_id = b.guest_id
 WHERE b.reservation_id IS NULL;
-
--- 15. Rank Hotels by Revenue
 
 SELECT h.hotel_name,
        COALESCE(SUM(p.amount), 0) AS revenue,
