@@ -1,12 +1,6 @@
 CREATE DATABASE IF NOT EXISTS ck_hotels_management;
 USE ck_hotels_management;
 
-DROP TABLE IF EXISTS payment_records;
-DROP TABLE IF EXISTS reservations;
-DROP TABLE IF EXISTS guests;
-DROP TABLE IF EXISTS rooms;
-DROP TABLE IF EXISTS hotels;
-
 CREATE TABLE hotels (
     hotel_id INT PRIMARY KEY AUTO_INCREMENT,
     hotel_name VARCHAR(60) NOT NULL,
